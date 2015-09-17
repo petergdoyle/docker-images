@@ -21,7 +21,7 @@ do
   BROKER_ZOOKEEPER_CONNECT=kafka_zk_0:2181
   SERVER_PROPERTIES="server-$n.properties"
 
-  cat server.properties \
+  cat /kafka/server.properties \
     |sed "s/BROKER_ID/$BROKER_ID/" \
       |sed "s/BROKER_PORT/$BROKER_PORT/" \
         |sed "s/BROKER_LOG_DIR/$BROKER_LOG_DIR/" \
