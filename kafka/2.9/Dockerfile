@@ -10,8 +10,10 @@ RUN mkdir /kafka; \
 
 ENV KAFKA_HOME='/kafka/default'
 
-COPY kafka-single-node-server-small.properties $KAFKA_HOME/config/server.properties
+COPY kafka-single-node-server-0.properties $KAFKA_HOME/config/server-0.properties
+COPY kafka-single-node-server-1.properties $KAFKA_HOME/config/server-1.properties
+COPY kafka-single-node-server-2.properties $KAFKA_HOME/config/server-2.properties
 COPY zookeeper.properties $KAFKA_HOME/config/zookeeper.properties
-COPY start-kafka-zookeeper.sh start-kafka-singlenode.sh start-kafka-consumer.sh stop-kafka-singlenode.sh /usr/bin/
+COPY start-kafka-zookeeper.sh start-kafka-server.sh start-kafka-consumer.sh stop-kafka-singlenode.sh /usr/bin/
 
 CMD ["/bin/bash"]
