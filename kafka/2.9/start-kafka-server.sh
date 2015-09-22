@@ -1,35 +1,38 @@
 #!/bin/sh
-die () {
-    echo >&2 "$@"
-    exit 1
-}
 
-[ "$#" -eq 1 ] || die "1 argument required, $# provided"
-echo $1 | grep -E -q '^[0-9]+$' || die "Numeric argument required, $1 provided"
+if [ "$#" -ne 1 ]
+then
+  echo "Usage: ${BASH_SOURCE[0]} \
+    [broker_id (default 0)] \
+    [zk (default kafka_zk_0:2181)] \
+    [broker_port (default 909\$broker_id)] \
+    [broker_log_retention_size (default 25000000)] \
+    [broker_log_segment_size (default 25000000)] \
+    [broker_log_retention_hrs] \
+    [broker_log_retention_check_interval (default 3000)]
+    "
+  exit 1
+fi
 
-number_of_servers="$1"
+broker_id=${1-"0"}
+zk=${2-"kafka_zk_0:2181"}
+broker_port=${3-"909$broker_id"}
+broker_log_dir=kafka-logs-$broker_id
+broker_log_retention_size=${4-"25000000"}
+broker_log_segment_size=${5-"25000000"}
+broker_log_retention_check_interval=${6-"3000"}
+broker_log_retention_hrs=${7-"16"}
+server_properties="server-$broker_id.properties"
 
-for ((n=0;n<$number_of_servers;n++))
-do
+cat server.properties \
+  |sed "s/BROKER_ID/$broker_id/" \
+    |sed "s/BROKER_PORT/$broker_port/" \
+      |sed "s/BROKER_LOG_DIR/$broker_log_dir/" \
+        |sed "s/BROKER_LOG_RETENTION_HRS/$broker_log_retention_hrs/" \
+          |sed "s/BROKER_LOG_RETENTION_SIZE/$broker_log_retention_size/" \
+            |sed "s/BROKER_LOG_RETENTION_CHECK_INTERVAL/$broker_log_retention_check_interval/" \
+              |sed "s/BROKER_LOG_SEGMENT_SIZE/$broker_log_segment_size/" \
+                |sed "s/BROKER_ZOOKEEPER_CONNECT/$zk/" \
+                  > $KAFKA_HOME/config/$server_properties
 
-  BROKER_ID=$n
-  BROKER_PORT=909$n
-  BROKER_LOG_DIR=kafka-logs-$n
-  BROKER_LOG_RETENTION_SIZE=25000000
-  BROKER_LOG_SEGMENT_SIZE=25000000
-  BROKER_LOG_RETENTION_HRS=16
-  BROKER_ZOOKEEPER_CONNECT=kafka_zk_0:2181
-  SERVER_PROPERTIES="server-$n.properties"
-
-  cat /kafka/server.properties \
-    |sed "s/BROKER_ID/$BROKER_ID/" \
-      |sed "s/BROKER_PORT/$BROKER_PORT/" \
-        |sed "s/BROKER_LOG_DIR/$BROKER_LOG_DIR/" \
-          |sed "s/BROKER_LOG_RETENTION_HRS/$BROKER_LOG_RETENTION_HRS/" \
-            |sed "s/BROKER_LOG_RETENTION_SIZE/$BROKER_LOG_RETENTION_SIZE/" \
-              |sed "s/BROKER_LOG_SEGMENT_SIZE/$BROKER_LOG_SEGMENT_SIZE/" \
-                |sed "s/BROKER_ZOOKEEPER_CONNECT/$BROKER_ZOOKEEPER_CONNECT/" \
-                  > $KAFKA_HOME/config/$SERVER_PROPERTIES
-
-   $KAFKA_HOME/bin/kafka-server-start.sh $KAFKA_HOME/config/$SERVER_PROPERTIES
-done
+$KAFKA_HOME/bin/kafka-server-start.sh $KAFKA_HOME/config/$server_properties
