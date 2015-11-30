@@ -10,4 +10,9 @@ RUN curl -O http://www.eu.apache.org/dist/tomcat/tomcat-8/v8.0.28/bin/apache-tom
 RUN curl -O http://apache.go-parts.com/tomcat/tomcat-8/v8.0.28/bin/extras/catalina-jmx-remote.jar \
       && mv catalina-jmx-remote.jar /tomcat/default/lib/
 
-EXPOSE 8080
+COPY setenv.sh /tomcat/default/bin/
+
+COPY conf/* /tomcat/default/conf/
+
+EXPOSE 8080 10001 10002
+
