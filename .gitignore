@@ -34,4 +34,4 @@ ssh
 *.gz
 *.tar
 .DS_Store
-
+*.zip

@@ -6,6 +6,9 @@ RUN yum -y update; \
 yum clean all; \
 yum -y install epel-release
 
-RUN yum -y install vim htop curl wget net-tools tree telnet git
+RUN yum -y install supervisor \
+  vim bash-completion tree git \
+  htop curl wget telnet \
+  iperf net-tools iftop nmon httpd-tools sysstat httperf
 
 CMD ["/bin/bash"]
